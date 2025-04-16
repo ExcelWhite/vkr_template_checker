@@ -1,0 +1,29 @@
+ФУНКЦИЯ ПРОВЕРИТЬ_ПРОСТЫЕ_ТЕКСТОВЫЕ_РАЗДЕЛЫ(document)
+    result <- ПУСТОЙ_СЛОВАРЬ
+    headings_to_check <- ["ПРИЛОЖЕНИЕ A", "ВВЕДЕНИЕ", "ЗАКЛЮЧЕНИЕ"]
+
+    ДЛЯ каждого heading_name В headings_to_check:
+        (page_num, matched_heading) <- НАЙТИ_ЗАГОЛОВОК_ПО_ИМЕНИ(document, heading_name)
+
+        ЕСЛИ page_num == NULL:
+            result[heading_name] <- "⚠️ Заголовок не найден"
+            ПРОДОЛЖИТЬ
+
+        page <- ПОЛУЧИТЬ_СТРАНИЦУ(document, page_num - 1)
+        lines <- РАЗБИТЬ_ТЕКСТ_НА_СТРОКИ(page)
+
+        heading_index <- НАЙТИ_ИНДЕКС_ЗАГОЛОВКА(lines, matched_heading)
+
+        ЕСЛИ heading_index == NULL ИЛИ нет строки после заголовка:
+            result[heading_name] <- "❌ Нет контентной строки после заголовка"
+            ПРОДОЛЖИТЬ
+
+        next_line <- ОТРЕЗАТЬ_И_ПРИВЕСТИ_К_МАЛЫМ_БУКВАМ(lines[heading_index + 1])
+
+        ЕСЛИ next_line == "текст":
+            result[heading_name] <- "✅ Прошел: раздел начинается с 'текст'"
+        ИНАЧЕ:
+            result[heading_name] <- "❌ Ожидался 'текст', но найдено другое значение"
+
+    ВЕРНУТЬ result
+КОНЕЦ ФУНКЦИИ

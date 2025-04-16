@@ -1,0 +1,30 @@
+ФУНКЦИЯ ПРОВЕРИТЬ_ИЛЛЮСТРАЦИИ(document)
+    result <- ПУСТОЙ_СПИСОК
+
+    illustrations <- ИЗВЛЕЧЬ_ИЛЛЮСТРАЦИИ_ИЗ_ДОКУМЕНТА(document)
+    headings <- ИЗВЛЕЧЬ_ЗАГОЛОВКИ_ИЗ_ОСНОВНОГО_ТЕКСТА(document)
+
+    heading_numbers <- СВЯЗАТЬ_ЗАГОЛОВКИ_С_НОМЕРАМИ(headings)
+
+    ДЛЯ КАЖДОЙ иллюстрации С ИНДЕКСОМ i В illustrations
+        caption <- иллюстрация.caption
+
+        ЕСЛИ caption СООТВЕТСТВУЕТ ФОРМАТУ "Рисунок X.X"
+            extracted_number <- ИЗВЛЕЧЬ_НОМЕР_ИЗ_ЗАГОЛОВКА(caption)
+
+            ДЛЯ КАЖДОГО заголовка, heading_number В heading_numbers
+                ЕСЛИ extracted_number НАЧИНАЕТСЯ С heading_number
+                    expected_caption <- caption  // уже правильно
+                ИНАЧЕ
+                    expected_caption <- ФОРМАТ("Рисунок {heading_number}.{i+1} [остальная часть текста заголовка]")
+
+                ЕСЛИ caption ≠ expected_caption
+                    result["Ошибка"] <- "❌ [caption] должен быть пронумерован как [expected_caption]"
+        ИНАЧЕ
+            result["Ошибка"] <- "❌ [caption] не соответствует правильному формату"
+
+    ЕСЛИ result ПУСТ
+        ВЕРНУТЬ {"Проверка иллюстраций" <- "✅ Прошел: все иллюстрации правильно пронумерованы"}
+
+    ВЕРНУТЬ result
+КОНЕЦ ФУНКЦИИ
