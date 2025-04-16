@@ -4,20 +4,28 @@ import re
 def estimate_line_spacing(page):
     spacings = []
     previous_y = None
-    lines = []
+    valid_lines_y = []  # To store the Y coordinates of non-empty lines
 
     blocks = page.get_text("dict")["blocks"]
     for block in blocks:
         if "lines" not in block:
             continue
         for line in block["lines"]:
-            y = line["bbox"][1]  # Top Y coordinate
-            if previous_y is not None:
-                spacing = abs(y - previous_y)
-                spacings.append(spacing)
-            previous_y = y
-    return spacings
+            # Extract the text from the line
+            line_text = ''.join(span['text'] for span in line['spans'])
 
+            # Check if the line is not empty and does not contain only whitespace
+            if line_text.strip():  # Only consider non-empty lines
+                y = line["bbox"][1]  # Top Y coordinate
+                valid_lines_y.append(y)  # Store the Y coordinate of valid lines
+
+    # Exclude the last line (assumed to be the page number)
+    if len(valid_lines_y) > 1:
+        for i in range(len(valid_lines_y) - 2):
+            spacing = abs(valid_lines_y[i + 1] - valid_lines_y[i])
+            spacings.append(spacing)
+    return spacings
+    
 
 def normalize_title(title):
     return re.sub(r"\s+", " ", title.strip().lower())
